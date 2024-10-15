@@ -1,11 +1,24 @@
 #include <iostream>
 #include <vector>
-using namespace std;
 
 class Sort
 {
 private:
-    int PARTITION(vector<int>& A, int p, int r)
+    void INSERTION_SORT(std::vector<int> A)
+    {
+        for (int j = 1; j < A.size(); j++)
+        {
+            auto key = A[j];
+            int i = j - 1;
+            while (i >= 0 && A[i] > key)
+            {
+                A[i + 1] = A[i];
+                i--;
+            }
+            A[i + 1] = key;
+        }
+    }
+    int PARTITION(std::vector<int>& A, int p, int r)
     {
         auto x = A[r];
         auto i = p - 1;
@@ -14,13 +27,13 @@ private:
             if (A[j] <= x)
             {
                 i++;
-                swap(A[i], A[j]);
+                std::swap(A[i], A[j]);
             }
         }
-        swap(A[i + 1], A[r]);
+        std::swap(A[i + 1], A[r]);
         return i+1;
     }
-    void QUICKSORT(vector<int>& A, int p, int r)
+    void QUICKSORT(std::vector<int>& A, int p, int r)
     {
         if (p < r)
         {
@@ -29,13 +42,13 @@ private:
             QUICKSORT(A, q + 1, r);
         }
     }
-    int RANDOMIZED_PARTITION(vector<int>& A, int p, int r)
+    int RANDOMIZED_PARTITION(std::vector<int>& A, int p, int r)
     {
         auto i = rand() % (r - p + 1) + p;
-        swap(A[r], A[i]);
+        std::swap(A[r], A[i]);
         return PARTITION(A, p, r);
     }
-    void RANDOMIZED_QUICKSORT(vector<int>& A, int p, int r)
+    void RANDOMIZED_QUICKSORT(std::vector<int>& A, int p, int r)
     {
         if (p < r)
         {
@@ -44,9 +57,9 @@ private:
             RANDOMIZED_QUICKSORT(A, q + 1, r);
         }
     }
-    void COUNTING_SORT(vector<int> A, vector<int>& B, k)
+    void COUNTING_SORT(std::vector<int> A, std::vector<int>& B, int k)
     {
-        vector<int> C(k + 1, 0);
+        std::vector<int> C(k + 1, 0);
         for (auto num : A)
         {
             C[num] = C[num] + 1;
@@ -55,18 +68,18 @@ private:
         {
             C[i] = C[i] + C[i - 1];
         }
-        foe (int j = A.size() - 1; j >= 0; j--)
+        for (int j = A.size() - 1; j >= 0; j--)
         {
             B[C[A[j]]] = A[j];
             C[A[j]] = C[A[j]] - 1;
         }
     }
     public:
-    void quicksort(vector<int>& A)
+    void quicksort(std::vector<int>& A)
     {
         QUICKSORT(A, 0, A.size() - 1);
     }
-    void randomized_quicksort(vector<int>& A)
+    void randomized_quicksort(std::vector<int>& A)
     {
         RANDOMIZED_QUICKSORT(A, 0, A.size() - 1);
     }
@@ -78,12 +91,12 @@ class Statistics
 };
 int main()
 {
-    vector<int> nums = {5, 2, 8, 1, 3, 7, 6};
+    std::vector<int> nums = {5, 2, 8, 1, 3, 7, 6};
     Sort qs;
     qs.quicksort(nums);
     for (auto num : nums)
     {
-        cout << num << " ";
+        std::cout << num << " ";
     }
     system("pause");
     return 0;
