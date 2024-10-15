@@ -1,10 +1,11 @@
 #include <iostream>
 #include <vector>
 
+#define INT_MAX 10000
 class Sort
 {
 private:
-    void INSERTION_SORT(std::vector<int> A)
+    void INSERTION_SORT(std::vector<int>& A)//ch2.2
     {
         for (int j = 1; j < A.size(); j++)
         {
@@ -16,6 +17,61 @@ private:
                 i--;
             }
             A[i + 1] = key;
+        }
+    }
+    void MERGE(std::vector<int>& A, int p, int q, int r)//ch2.3.1
+    {
+        auto n1 = q - p + 1;
+        auto n2 = r - q;
+        std::vector<int> L(n1 + 1, 0);
+        std::vector<int> R(n2 + 1, 0);
+        for (int i = 0; i < n1; i++)
+        {
+            L[i] = A[p + i];
+        }
+        for (int j = 0; j < n2; j++)
+        {
+            R[j] = A[q + j + 1];
+        }
+        L[n1] = INT_MAX;
+        R[n2] = INT_MAX;
+        int i = 0;
+        int j = 0;
+        for (int k = p; k <= r; k++)
+        {
+            if (L[i] <= R[j])
+            {
+                A[k] = L[i];
+                i++;
+            }
+            else
+            {
+                A[k] = R[j];
+                j++;
+            }
+        }
+    }
+    void MERGESORT(std::vector<int>& A, int p, int r)//ch2.3.1
+    {
+        if (p < r)
+        {
+            auto q = (p + r) / 2;
+            MERGESORT(A, p, q);
+            MERGESORT(A, q + 1, r);
+            MERGE(A, p, q, r);
+        }
+    }
+    void BUBBLESORT(std::vector<int>& A)//ch2.3
+    {
+        for (int i = 0; i < A.size(); i++)
+        {
+            for (int j = A.size() - 1; j > i; j--)
+            {
+                if (A[j] < A[j - 1])
+                {
+                    std::swap(A[j], A[j - 1]);
+                }
+            }
         }
     }
     int PARTITION(std::vector<int>& A, int p, int r)
@@ -73,6 +129,11 @@ private:
             B[C[A[j]]] = A[j];
             C[A[j]] = C[A[j]] - 1;
         }
+    }
+    void BUCKETSORT(std::vector<int>& A)
+    {
+        std::vector<int> B(A.size(), 0);
+        //
     }
     public:
     void quicksort(std::vector<int>& A)
