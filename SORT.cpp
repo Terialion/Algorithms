@@ -1,13 +1,16 @@
 #include <iostream>
 #include <vector>
+#include <time.h>
+#include <fstream>
+#include <algorithm>
 
 #define INT_MAX 10000
 class Sort
 {
 private:
-    void INSERTION_SORT(std::vector<int>& A)//ch2.2
+    void INSERTION_SORT(std::vector<int>& A, int begin, int end)//ch2.2
     {
-        for (int j = 1; j < A.size(); j++)
+        for (int j = 1 + begin; j < end; j++)
         {
             auto key = A[j];
             int i = j - 1;
@@ -74,7 +77,7 @@ private:
             }
         }
     }
-    int PARTITION(std::vector<int>& A, int p, int r)
+    int PARTITION(std::vector<int>& A, int p, int r)//normal sort
     {
         auto x = A[r];
         auto i = p - 1;
@@ -89,7 +92,7 @@ private:
         std::swap(A[i + 1], A[r]);
         return i+1;
     }
-    void QUICKSORT(std::vector<int>& A, int p, int r)
+    void QUICKSORT(std::vector<int>& A, int p, int r)//normal sort
     {
         if (p < r)
         {
@@ -98,13 +101,65 @@ private:
             QUICKSORT(A, q + 1, r);
         }
     }
-    int RANDOMIZED_PARTITION(std::vector<int>& A, int p, int r)
+    int MEDIAN_OF_THREE(std::vector<int>& A, int p, int r)//The process of optimizing the QUCIKSORT
+    {
+        int mid = p + (r - p) / 2;
+        if (A[p] > A[mid])
+            std::swap(A[p], A[mid]);
+        if (A[p] > A[r])
+            std::swap(A[p], A[r]);
+        if (A[mid] > A[r])
+            std::swap(A[mid], A[r]);
+        std::swap(A[mid], A[r - 1]);
+        return A[r - 1];
+    }
+    int PARTITION_OPTIMIZED(std::vector<int>& A, int p, int r)//Use MEDIAN_OF_THREE and RANDOMIZED_PARTITION to optimize the quicksort
+    {
+        auto x = MEDIAN_OF_THREE(A, p, r);
+        int i = p - 1;
+        for (int j = p; j < r; j++)
+        {
+            if (A[j] <= x)
+            {
+                i++;
+                std::swap(A[i], A[j]);
+            }
+        }
+        std::swap(A[i + 1], A[r]);
+        return i + 1;
+    }
+    void QUICKSORT_OPTIMIZED(std::vector<int>& A, int p, int r)
+    {
+        while (p < r)
+        {
+            if (r - p < 10)//When size smaller than 10, use insertion sort
+            {
+                INSERTION_SORT(A, p, r);
+                break;
+            }
+            else
+            {
+                auto q = RANDOMIZED_PARTITION(A, p, r);//Use RANDOMIZED_PARTITION instead of PARTITION to avoid worst case
+                if (q - p < r - q)
+                {
+                    QUICKSORT_OPTIMIZED(A, p, q - 1);
+                    p = q + 1;
+                }
+                else
+                {
+                    QUICKSORT_OPTIMIZED(A, q + 1, r);
+                    r = q - 1;
+                }
+            }
+        }
+    }
+    int RANDOMIZED_PARTITION(std::vector<int>& A, int p, int r)//Use RANDOMIZED_PARTITION instead of PARTITION to avoid worst case
     {
         auto i = rand() % (r - p + 1) + p;
         std::swap(A[r], A[i]);
-        return PARTITION(A, p, r);
+        return PARTITION_OPTIMIZED(A, p, r);
     }
-    void RANDOMIZED_QUICKSORT(std::vector<int>& A, int p, int r)
+    void RANDOMIZED_QUICKSORT(std::vector<int>& A, int p, int r)//Use random number to avoid worst case
     {
         if (p < r)
         {
@@ -140,6 +195,10 @@ private:
     {
         QUICKSORT(A, 0, A.size() - 1);
     }
+    void quicksort_optimized(std::vector<int>& A)
+    {
+        QUICKSORT_OPTIMIZED(A, 0, A.size() - 1);
+    }
     void randomized_quicksort(std::vector<int>& A)
     {
         RANDOMIZED_QUICKSORT(A, 0, A.size() - 1);
@@ -153,12 +212,25 @@ class Statistics
 int main()
 {
     std::vector<int> nums = {5, 2, 8, 1, 3, 7, 6};
+    std::vector<int> nums2 = {5, 2, 8, 1, 3, 7, 6};
     Sort qs;
+    
+    auto starttime = clock();
     qs.quicksort(nums);
-    for (auto num : nums)
+    auto medtime = clock();
+    qs.quicksort_optimized(nums2);
+    auto endtime = clock();
+    for (auto mem:nums)
     {
-        std::cout << num << " ";
+        std::cout << mem << " ";
     }
+    std::cout << std::endl;
+    std::cout << "Time:" << medtime - starttime << std::endl;
+    for (auto mem:nums2)
+    {
+        std::cout << mem << " ";
+    }
+    std::cout << "Time:" << endtime - medtime << std::endl;
     system("pause");
     return 0;
 }
