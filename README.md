@@ -6,3 +6,7 @@
     Now just code.
 ### BubbleSort
     Now just code.
+### RedBlackTree
+    Have finish the main code of RBT.
+    Include 'void RedBlackTreeInsert(T key)' and 'void RedBlackTreeDelete(RedBlackTreeNode* z)'
+

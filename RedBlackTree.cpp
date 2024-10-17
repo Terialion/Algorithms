@@ -81,7 +81,7 @@ public:
         x.right = y;
         y->parent = x;
     }
-    void RedBlackTreeInsert(RedBlackTree* root, T key)
+    void RedBlackTreeInsert(T key)
     {
         RedBlackTreeNode* z;
         z->key = key;
@@ -119,7 +119,7 @@ public:
         z->color = Red;
         RedBlackTreeInsertFixup(root, z);
     }
-    void RedBlackFixup(RedBlackTreeNode *root, RedBlackTreeNode *z)
+    void RedBlackFixup(RedBlackTreeNode *z)
     {
         while (z->parent->color == Red)
         {
@@ -170,6 +170,163 @@ public:
         }
         root->color = Black;
     }
-    
-
+    void RedBlackTreeDelete(RedBlackTreeNode* z)
+    {
+        RedBlackTreeNode* y = z;
+        RedBlackTreeNode* x;
+        bool yOriginalColor = y->color;
+        if (z->left == nil)
+        {
+            x = z->right;
+            RedBlackTransplant(root, z, z->right);
+        }
+        else if (z->right == nil)
+        {
+            x = z->left;
+            RedBlackTransplant(root, z, z->left);
+        }
+        else
+        {
+            y = RedBlackTreeMinimum(z->right);
+            yOriginalColor = y->color;
+            x = y->right;
+            if (y->parent == z)
+            {
+                x->parent = y;
+            }
+            else
+            {
+                RedBlackTransplant(root, y, y->right);
+                y->right = z->right;
+                y->right->parent = y;
+            }
+            RedBlackTransplant(root, z, y);
+            y->left = z->left;
+            y->left->parent = y;
+            y->color = z->color;
+        }
+        if (yOriginalColor == Black)
+        {
+            RedBlackDeleteFixup(root, x);
+        }
+    }
+    void RedBlackTransplant(RedBlackTreeNode* u, RedBlackTreeNode* v)
+    {
+        if (u->parent == nil)
+        {
+            root = v;
+        }
+        else if (u == u->parent->left)
+        {
+            u->parent->left = v;
+        }
+        else
+        {
+            u->parent->right = v;
+        }
+        v->parent = u->parent;
+    }
+    void RedBlackTreeMinimum(RedBlackTreeNode* x)
+    {
+        while (x->left != nil)
+        {
+            x = x->left;
+        }
+        return x;
+    }
+    void RedBlackDeleteFixup(RedBlackTreeNode* x)
+    {
+        while (x!= root && x->color == Black)
+        {
+            if (x == x->parent->left)
+            {
+                auto w = x->parent->right;
+                if (w->color == Red)
+                {
+                    w->color = Black;
+                    x->parent->color = Red;
+                    LeftRotate(x->parent);
+                    w = x->parent->right;
+                }
+                if (w->left->color == Black && w->right->color == Black)
+                {
+                    w->color = Red;
+                    x = x->parent;
+                }
+                else
+                {
+                    if (w->right->color == Black)
+                    {
+                        w->left->color = Black;
+                        w->color = Red;
+                        RightRotate(w);
+                        w = x->parent->right;
+                    }
+                    w->color = x->parent->color;
+                    x->parent->color = Black;
+                    w->right->color = Black;
+                    LeftRotate(x->parent);
+                    x = root;
+                }
+            }
+            else
+            {
+                auto w = x->parent->left;
+                if (w->color == Red)
+                {
+                    w->color = Black;
+                    x->parent->color = Red;
+                    RightRotate(x->parent);
+                    w = x->parent->left;
+                }
+                if (w->right->color == Black && w->left->color == Black)
+                {
+                    w->color = Red;
+                    x = x->parent;
+                }
+                else
+                {
+                    if (w->left->color == Black)
+                    {
+                        w->right->color = Black;
+                        w->color = Red;
+                        LeftRotate(w);
+                        w = x->parent->left;
+                    }
+                    w->color = x->parent->color;
+                    x->parent->color = Black;
+                    w->left->color = Black;
+                    RightRotate(x->parent);
+                    x = root;
+                }
+            }
+            x->color = Black;
+        }
+    }
+    RedBlackTreeNode* RedBlackTreeSearch(RedBlackTreeNode* x, T key)
+    {
+        if (x == key) return NULL;
+        if (x->key == key)
+        {
+            return x;
+        }
+        if (key < x->key)
+        {
+            return RedBlackTreeSearch(x->left, key);
+        }
+        else
+        {
+            return RedBlackTreeSearch(x->right, key);
+        }
+    }
 };
+
+RedBlackTree::RedBlackTree(/* args */)
+{
+}
+
+RedBlackTree::~RedBlackTree()
+{
+}
+
+
