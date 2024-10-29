@@ -3,6 +3,8 @@
 #include <time.h>
 #include <algorithm>
 #include <list>
+#include <fstream>
+#include <queue>
 
 template <typename T>
 class RedBlackTree
@@ -22,18 +24,31 @@ private:
     RedBlackTreeNode* root;
     RedBlackTreeNode* nil;
 public:
-    RedBlackTree(/* args */);
-    ~RedBlackTree();
+    RedBlackTreeNode* getRoot() {
+        return root;
+    }
+    std::vector<int> insertAndTrackCases(const std::vector<T>& data) {
+        std::vector<int> cases;
+        RedBlackTreeInit(data[0]);
+        for (int i = 1; i < data.size(); i++) {
+            RedBlackTreeNode* z = new RedBlackTreeNode{data[i], nil, nil, nil, Red};
+            RedBlackTreeInsert(z, cases);
+        }
+        return cases;
+    }
     void RedBlackTreeInit(T key)
     {
+        nil = new RedBlackTreeNode;
         nil->color = Black;
-        nil->left = root;
-        nil->right = root;
+        nil->parent = nullptr;
+        root = new RedBlackTreeNode;
         root->parent = nil;
         root->color = Black;
         root->left = nil;
         root->right = nil;
         root->key = key;
+        nil->left = root;
+        nil->right = root;
     }
     void LeftRotate(RedBlackTreeNode* x)
     {
@@ -56,8 +71,10 @@ public:
         {
             x->parent->right = y;
         }
+        y->left = x;
+        x->parent = y;
     }
-    void Rightrotate(RedBlackTreeNode* y)
+    void RightRotate(RedBlackTreeNode* y)
     {
         auto x = y->left;//set x
         y->left = x->right;
@@ -78,15 +95,11 @@ public:
         {
             y->parent->left = x;
         }
-        x.right = y;
+        x->right = y;
         y->parent = x;
     }
-    void RedBlackTreeInsert(T key)
+    void RedBlackTreeInsert(RedBlackTreeNode* z, std::vector<int>& cases)
     {
-        RedBlackTreeNode* z;
-        z->key = key;
-        z->left = nil;
-        z->right = nil;
         auto y = nil;
         auto x = root;
         while (x != nil)
@@ -117,9 +130,9 @@ public:
         z->left = nil;
         z->right = nil;
         z->color = Red;
-        RedBlackTreeInsertFixup(root, z);
+        RedBlackInsertFixup(z);
     }
-    void RedBlackFixup(RedBlackTreeNode *z)
+    void RedBlackInsertFixup(RedBlackTreeNode *z)
     {
         while (z->parent->color == Red)
         {
@@ -128,6 +141,7 @@ public:
                 auto y = z->parent->parent->right;
                 if (y->color == Red)
                 {
+                    std::cout << "case 1" << std::endl;
                     z->parent->color = Black;//case 1
                     y->color = Black;
                     z->parent->parent->color = Red;
@@ -137,10 +151,12 @@ public:
                 {
                     if (z == z->parent->right)
                     {
-                        z = z->parent;
+                        std::cout << "case 2" << std::endl;
+                        z = z->parent;//case 2
                         LeftRotate(z);
                     }
-                    z->parent->color = Black;
+                    std::cout << "case 3" << std::endl;
+                    z->parent->color = Black;//case 3
                     z->parent->parent->color = Red;
                     RightRotate(z->parent->parent);
                 }
@@ -150,7 +166,8 @@ public:
                 auto y = z->parent->parent->left;
                 if (y->color == Red)
                 {
-                    z->parent->color = Black;
+                    std::cout << "case 4" << std::endl;
+                    z->parent->color = Black;//case 4
                     y->color = Black;
                     z->parent->parent->color = Red;
                     z = z->parent->parent;
@@ -159,10 +176,12 @@ public:
                 {
                     if (z == z->parent->left)
                     {
-                        z = z->parent;
+                        std::cout << "case 5" << std::endl;
+                        z = z->parent;//case 5
                         RightRotate(z);
                     }
-                    z->parent->color = Black;
+                    std::cout << "case 6" << std::endl;
+                    z->parent->color = Black;//case 6
                     z->parent->parent->color = Red;
                     LeftRotate(z->parent->parent);
                 }
@@ -226,7 +245,7 @@ public:
         }
         v->parent = u->parent;
     }
-    void RedBlackTreeMinimum(RedBlackTreeNode* x)
+    RedBlackTreeNode* RedBlackTreeMinimum(RedBlackTreeNode* x)
     {
         while (x->left != nil)
         {
@@ -234,7 +253,7 @@ public:
         }
         return x;
     }
-    void RedBlackDeleteFixup(RedBlackTreeNode* x)
+    void RedBlackDeleteFixup(RedBlackTreeNode* x)//Delete fixup
     {
         while (x!= root && x->color == Black)
         {
@@ -303,7 +322,7 @@ public:
             x->color = Black;
         }
     }
-    RedBlackTreeNode* RedBlackTreeSearch(RedBlackTreeNode* x, T key)
+    RedBlackTreeNode* RedBlackTreeSearch(RedBlackTreeNode* x, T key)//Find the node with key
     {
         if (x == key) return NULL;
         if (x->key == key)
@@ -319,14 +338,58 @@ public:
             return RedBlackTreeSearch(x->right, key);
         }
     }
+    void PreOrderTraversal(RedBlackTreeNode* node, std::ofstream& outFile) {//Traversal the tree with preorder
+        if (node != nil) {
+            std::cout << node->key << " ";
+            outFile << node->key << " " << (node->color == Red ? "Red" : "Black") << std::endl;
+            PreOrderTraversal(node->left, outFile);
+            PreOrderTraversal(node->right, outFile);
+        }
+    }
+    void InOrderTraversal(RedBlackTreeNode* node, std::ofstream& outFile) {//Traversal the tree with inorder
+        if (node != nil) {
+            InOrderTraversal(node->left, outFile);
+            std::cout << node->key << " ";
+            outFile << node->key << " " << (node->color == Red ? "Red" : "Black") << std::endl;
+            InOrderTraversal(node->right, outFile);
+        }
+    }
+    void LevelOrderTraversal(std::ofstream& outFile) {//Traversal the tree with level order
+        if (root == nil) return;
+        std::queue<RedBlackTreeNode*> q;
+        q.push(root);
+        while (!q.empty()) {
+            RedBlackTreeNode* node = q.front();
+            q.pop();
+            outFile << node->key << " " << (node->color == Red ? "Red" : "Black") << std::endl;
+            std::cout << node->key << " ";
+            if (node->left != nil) q.push(node->left);
+            if (node->right != nil) q.push(node->right);
+        }
+    }
 };
 
-RedBlackTree::RedBlackTree(/* args */)
-{
-}
+int main() {
+    std::ifstream infile("");
+    int size;
+    infile >> size;
+    std::vector<int> nodes(size);
+    for (int i = 0; i < size; ++i) {
+        infile >> nodes[i];
+    }
 
-RedBlackTree::~RedBlackTree()
-{
+    RedBlackTree<int> tree;
+    auto cases = tree.insertAndTrackCases(nodes);
+
+    std::ofstream nlrFile("");
+    std::ofstream lnrFile("");
+    std::ofstream lotFile("");
+
+    tree.PreOrderTraversal(tree.getRoot(), nlrFile);
+    tree.InOrderTraversal(tree.getRoot(), lnrFile);
+    tree.LevelOrderTraversal(lotFile);
+    system("pause");
+    return 0;
 }
 
 
