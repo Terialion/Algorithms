@@ -13,4 +13,5 @@
     Finish the code of finding the nearest points and provide the camparion with the BruteFroce way to solve.
 ### DynamicProgramming
     Finish the part of CUT-ROD.
-
+### IntervalTree
+    Can input the interval to find the intervals in the tree which are overlaped.
