@@ -15,3 +15,5 @@
     Finish the part of CUT-ROD.
 ### IntervalTree
     Can input the interval to find the intervals in the tree which are overlaped.
+### Huffman
+    Can encode the text to compress.
